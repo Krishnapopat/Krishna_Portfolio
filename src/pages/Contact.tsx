@@ -61,6 +61,8 @@ const Contact = () => {
       }
 
       // Use Vercel API route
+      console.log('Sending contact form data:', formData)
+      
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
@@ -69,7 +71,21 @@ const Contact = () => {
         body: JSON.stringify(formData),
       })
 
-      const result = await response.json()
+      console.log('Response status:', response.status)
+      
+      // Get response as text first to handle both JSON and HTML responses
+      const responseText = await response.text()
+      console.log('Raw response:', responseText)
+      
+      let result
+      try {
+        result = JSON.parse(responseText)
+        console.log('Parsed response data:', result)
+      } catch (parseError) {
+        // If response is not JSON, it might be an HTML error page
+        console.error('Failed to parse JSON response:', responseText)
+        throw new Error(`Server returned non-JSON response (Status: ${response.status}). API route may not exist or there's a server error.`)
+      }
 
       if (response.ok && result.success) {
         setSubmitStatus('success')
@@ -81,15 +97,19 @@ const Contact = () => {
         // Clear form
         setFormData({ name: "", email: "", subject: "", message: "" })
       } else {
-        throw new Error(result.error || 'Failed to send message')
+        throw new Error(result.error || result.details || 'Failed to send message')
       }
     } catch (error) {
       console.error('Error sending message:', error)
       setSubmitStatus('error')
       
+      // Show detailed error for debugging
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error('Contact form error:', errorMessage);
+      
       toast({
         title: "Failed to Send Message",
-        description: error instanceof Error ? error.message : "Please try again later or contact me directly via email.",
+        description: `Error: ${errorMessage}. Please try again or contact me directly at nilakrishna2004@gmail.com`,
         variant: "destructive",
       })
     } finally {
