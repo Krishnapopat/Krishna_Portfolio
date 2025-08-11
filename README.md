@@ -2,7 +2,6 @@
 
 A modern, responsive portfolio website template for showcasing AI engineering expertise, projects, certifications, and blog posts. Built with React, TypeScript, and Tailwind CSS.
 
-![Portfolio Preview](./public/og-image.png)
 
 ## 🚀 Live Demo
 
