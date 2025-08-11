@@ -144,6 +144,7 @@ Krishna_Portfolio/
 Create a `.env` file for environment-specific variables:
 ```env
 RESEND_API_KEY=your_resend_api_key_here
+```
 
 ### Email Setup (Resend)
 The contact form uses [Resend](https://resend.com) for email functionality:
