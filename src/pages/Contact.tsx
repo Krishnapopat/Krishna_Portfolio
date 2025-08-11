@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Mail, Phone, MapPin, Send, Github, Linkedin, AlertCircle, CheckCircle } from "lucide-react"
+import { Mail, Phone, MapPin, Send, Github, Linkedin, AlertCircle, CheckCircle, AlertTriangle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 const Contact = () => {
@@ -19,7 +19,7 @@ const Contact = () => {
     message: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'setup_required'>('idle')
   const { toast } = useToast()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -60,9 +60,6 @@ const Contact = () => {
         return
       }
 
-      // Use Vercel API route
-      console.log('Sending contact form data:', formData)
-      
       const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
@@ -71,21 +68,7 @@ const Contact = () => {
         body: JSON.stringify(formData),
       })
 
-      console.log('Response status:', response.status)
-      
-      // Get response as text first to handle both JSON and HTML responses
-      const responseText = await response.text()
-      console.log('Raw response:', responseText)
-      
-      let result
-      try {
-        result = JSON.parse(responseText)
-        console.log('Parsed response data:', result)
-      } catch (parseError) {
-        // If response is not JSON, it might be an HTML error page
-        console.error('Failed to parse JSON response:', responseText)
-        throw new Error(`Server returned non-JSON response (Status: ${response.status}). API route may not exist or there's a server error.`)
-      }
+      const result = await response.json()
 
       if (response.ok && result.success) {
         setSubmitStatus('success')
@@ -93,25 +76,25 @@ const Contact = () => {
           title: "Message Sent Successfully! 🎉",
           description: "Thank you for your message. I'll get back to you soon!",
         })
-        
-        // Clear form
         setFormData({ name: "", email: "", subject: "", message: "" })
+      } else if (result.setup_required) {
+        setSubmitStatus('setup_required')
+        toast({
+          title: "Email Service Configuration Required",
+          description: "The email service is not properly configured. Please contact me directly.",
+          variant: "destructive",
+        })
       } else {
-        throw new Error(result.error || result.details || 'Failed to send message')
+        throw new Error(result.error || 'Failed to send message')
       }
-    } catch (error) {
-      console.error('Error sending message:', error)
-      setSubmitStatus('error')
-      
-      // Show detailed error for debugging
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      console.error('Contact form error:', errorMessage);
-      
-      toast({
-        title: "Failed to Send Message",
-        description: `Error: ${errorMessage}. Please try again or contact me directly at nilakrishna2004@gmail.com`,
-        variant: "destructive",
-      })
+          } catch (error) {
+        setSubmitStatus('error')
+        console.error('Contact form error:', error)
+        toast({
+          title: "Failed to Send Message",
+          description: `Error: ${error.message}. Please try again or contact me directly at nilakrishna2004@gmail.com`,
+          variant: "destructive",
+        })
     } finally {
       setIsSubmitting(false)
     }
@@ -240,6 +223,16 @@ const Contact = () => {
                   <div>
                     <p className="text-red-800 font-medium">Failed to send message</p>
                     <p className="text-red-700 text-sm">Please try again or contact me directly via email.</p>
+                  </div>
+                </div>
+              )}
+
+              {submitStatus === 'setup_required' && (
+                <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-center gap-3">
+                  <AlertTriangle size={20} className="text-yellow-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-yellow-800 font-medium">Email service configuration required</p>
+                    <p className="text-yellow-700 text-sm">Please contact me directly at nilakrishna2004@gmail.com</p>
                   </div>
                 </div>
               )}
