@@ -60,13 +60,8 @@ const Contact = () => {
         return
       }
 
-      // For development, use localhost. For production, this will be your domain
-      const isDevelopment = window.location.hostname === 'localhost'
-      const baseUrl = isDevelopment 
-        ? 'http://localhost:8888/.netlify/functions' 
-        : '/.netlify/functions'
-
-      const response = await fetch(`${baseUrl}/send-email`, {
+      // Use Vercel API route
+      const response = await fetch('/api/send-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
