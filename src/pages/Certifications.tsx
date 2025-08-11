@@ -139,12 +139,7 @@ const Certifications = () => {
           ))}
         </div>
 
-        {/* Call to Action */}
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center space-x-2 bg-muted rounded-lg p-4">
       
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -8,23 +8,23 @@ const Blogs = () => {
       title: "Building Your First Agentic Workflow with LangGraph and Gemini LLM: A Step-by-Step Guide",
       description: "A comprehensive guide to building intelligent systems that can adapt, plan, and act autonomously using LangGraph and Google's Gemini LLM.",
       url: "https://medium.com/searce/building-your-first-agentic-workflow-with-langgraph-and-gemini-llm-a-step-by-step-guide-c173c9dcdfe7",
-      date: "Apr 19, 2024",
+      date: "Apr 19, 2025",
       readTime: "6 min read",
       publication: "Searce",
       coverImage: "/image.png",
       fallbackImage: "https://miro.medium.com/v2/resize:fit:1200/1*8cU7vGD_-ypKVs2KjBv8dQ.png",
-      tags: ["LangGraph", "Gemini LLM", "AI Agents", "Python", "Machine Learning"]
+      tags: ["LangGraph", "Gemini LLM", "AI Agents", "Machine Learning", "Python"]
     },
     {
       title: "Unlocking Collaborative AI: Building Multi-Agent Systems with MCP & Gemini",
       description: "Explore how multiple agents can work together, each with their own responsibilities, and dynamically decide who should handle what using Model Context Protocol.",
       url: "https://medium.com/searce/unlocking-collaborative-ai-building-multi-agent-systems-with-mcp-gemini-94d5d08d355c", 
-      date: "Dec 2024",
+      date: "May 20, 2025",
       readTime: "8 min read",
       publication: "Searce",
       coverImage: "/image copy.png",
       fallbackImage: "https://miro.medium.com/v2/resize:fit:1200/1*2aYb3QfQvF-VbX-cJ9gZ1w.png",
-      tags: ["Multi-Agent Systems", "MCP", "Gemini", "Collaborative AI", "Python"]
+      tags: ["Multi-Agent Systems", "MCP", "Gemini", "Collaborative Agents", "Python"]
     }
   ];
 
