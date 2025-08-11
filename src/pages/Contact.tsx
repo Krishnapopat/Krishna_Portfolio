@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Mail, Phone, MapPin, Send, Github, Linkedin } from "lucide-react"
+import { Mail, Phone, MapPin, Send, Github, Linkedin, AlertCircle, CheckCircle } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 const Contact = () => {
@@ -19,26 +19,87 @@ const Contact = () => {
     message: "",
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const { toast } = useToast()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+    // Reset status when user starts typing again
+    if (submitStatus !== 'idle') {
+      setSubmitStatus('idle')
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
+    setSubmitStatus('idle')
 
-    // For now, just show a toast message since Supabase isn't connected
-    setTimeout(() => {
-      toast({
-        title: "Message Sent!",
-        description: "Thank you for your message. I'll get back to you soon!",
+    try {
+      // Validate form data
+      if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "Please fill in all required fields.",
+          variant: "destructive",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(formData.email)) {
+        toast({
+          title: "Invalid Email",
+          description: "Please enter a valid email address.",
+          variant: "destructive",
+        })
+        setIsSubmitting(false)
+        return
+      }
+
+      // For development, use localhost. For production, this will be your domain
+      const isDevelopment = window.location.hostname === 'localhost'
+      const baseUrl = isDevelopment 
+        ? 'http://localhost:8888/.netlify/functions' 
+        : '/.netlify/functions'
+
+      const response = await fetch(`${baseUrl}/send-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
       })
-      setFormData({ name: "", email: "", subject: "", message: "" })
+
+      const result = await response.json()
+
+      if (response.ok && result.success) {
+        setSubmitStatus('success')
+        toast({
+          title: "Message Sent Successfully! 🎉",
+          description: "Thank you for your message. I'll get back to you soon!",
+        })
+        
+        // Clear form
+        setFormData({ name: "", email: "", subject: "", message: "" })
+      } else {
+        throw new Error(result.error || 'Failed to send message')
+      }
+    } catch (error) {
+      console.error('Error sending message:', error)
+      setSubmitStatus('error')
+      
+      toast({
+        title: "Failed to Send Message",
+        description: error instanceof Error ? error.message : "Please try again later or contact me directly via email.",
+        variant: "destructive",
+      })
+    } finally {
       setIsSubmitting(false)
-    }, 1000)
+    }
   }
 
   const contactInfo = [
@@ -57,7 +118,7 @@ const Contact = () => {
     {
       icon: MapPin,
       label: "Location",
-      value: "Ahmedabad, Gujarat, India",
+      value: "Vadodara, Gujarat, India",
       href: "#",
     },
   ]
@@ -147,6 +208,27 @@ const Contact = () => {
             <Card className="p-8 glass-effect hover-glow">
               <h2 className="text-2xl font-bold mb-6">Send Me a Message</h2>
 
+              {/* Status Messages */}
+              {submitStatus === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center gap-3">
+                  <CheckCircle size={20} className="text-green-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-green-800 font-medium">Message sent successfully!</p>
+                    <p className="text-green-700 text-sm">I'll get back to you as soon as possible.</p>
+                  </div>
+                </div>
+              )}
+
+              {submitStatus === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3">
+                  <AlertCircle size={20} className="text-red-600 flex-shrink-0" />
+                  <div>
+                    <p className="text-red-800 font-medium">Failed to send message</p>
+                    <p className="text-red-700 text-sm">Please try again or contact me directly via email.</p>
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -159,6 +241,7 @@ const Contact = () => {
                       placeholder="Your Name"
                       required
                       className="border-border focus:border-primary"
+                      disabled={isSubmitting}
                     />
                   </div>
                   <div className="space-y-2">
@@ -172,6 +255,7 @@ const Contact = () => {
                       placeholder="your.email@example.com"
                       required
                       className="border-border focus:border-primary"
+                      disabled={isSubmitting}
                     />
                   </div>
                 </div>
@@ -186,6 +270,7 @@ const Contact = () => {
                     placeholder="What's this about?"
                     required
                     className="border-border focus:border-primary"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -200,6 +285,7 @@ const Contact = () => {
                     required
                     rows={6}
                     className="border-border focus:border-primary resize-none"
+                    disabled={isSubmitting}
                   />
                 </div>
 
@@ -209,7 +295,10 @@ const Contact = () => {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    "Sending..."
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Sending...
+                    </>
                   ) : (
                     <>
                       <Send size={16} className="mr-2" />
@@ -219,6 +308,11 @@ const Contact = () => {
                 </Button>
               </form>
 
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground text-center">
+                  💡 <strong>Quick tip:</strong> Include details about your project or the role you're discussing for a faster response!
+                </p>
+              </div>
             </Card>
           </div>
         </div>
