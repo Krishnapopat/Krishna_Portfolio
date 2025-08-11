@@ -18,7 +18,7 @@ const Projects = () => {
         "Accelerated data entry processes by over 5x",
         "Production-grade pipeline architecture",
       ],
-      github: "https://github.com/krishnapopat/form16-extraction",
+      github: "https://github.com/Krishnapopat/FinDoc?tab=readme-ov-file",
     
     },
     {
@@ -34,7 +34,7 @@ const Projects = () => {
         "Contextual merge diff summarization",
         "100% Jira status updates with Gemini-generated comments",
       ],
-      github: "https://github.com/krishnapopat/gitlab-jira-automation",
+      github: "https://github.com/Krishnapopat/Jira-Gitlab-Agent",
   
     },
     {
@@ -50,7 +50,7 @@ const Projects = () => {
         "Smart caching mechanisms",
         "Contextual response generation",
       ],
-      github: "https://github.com/krishnapopat/retail-assistant",
+      github: "https://github.com/Krishnapopat/Retail_Chatbot",
      
     },
     {
@@ -66,7 +66,7 @@ const Projects = () => {
         "Gemini chatbot integration",
         "Real-time security monitoring",
       ],
-      github: "https://github.com/krishnapopat/security-dashboard",
+      github: "https://github.com/Krishnapopat/WebSecurity-Dashboard",
     
     },
   ]
